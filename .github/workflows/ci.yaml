@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 permissions:
     pages: write
+    contents: write
 
 jobs:
     test-report:
