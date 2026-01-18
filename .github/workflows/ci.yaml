@@ -64,3 +64,58 @@ jobs:
                 git commit -m "Update task badges" || exit 0
                 git push
 
+    prepare_matrix:
+        needs: test-report
+        runs-on: ubuntu-latest
+        outputs:
+            matrix: ${{ steps.mk.outputs.matrix }}
+        steps:
+            - name: Download results artifact
+              uses: actions/download-artifact@v6
+              with:
+                name: package-results
+                path: .
+
+            - id: mk
+              name: Build matrix from package-results.json
+              shell: bash
+              run: |
+                matrix="$(jq -c '{
+                include: [
+                to_entries[]
+                | select(.key | test("task_[0-9]+$"))
+                | {
+                    id: (.key | capture("task_(?<id>[0-9]+)$").id),
+                    status: (.value.status // "unknown")
+                    }
+                ]
+                }' package-results.json)"
+
+                echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+                echo "$matrix"
+
+    task:
+        needs: prepare_matrix
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix: ${{ fromJson(needs.prepare_matrix.outputs.matrix) }}
+        name: task ${{ matrix.id }}
+        steps:
+            - name: Set job result based on status
+              shell: bash
+              run: |
+                st="${{ matrix.status }}"
+
+                if [[ "$st" == "pass" ]]; then
+                echo "task ${{ matrix.id }}: ok"
+                exit 0
+                elif [[ "$st" == "fail" ]]; then
+                echo "task ${{ matrix.id }}: fail"
+                exit 1
+                else
+                echo "::warning title=task ${{ matrix.id }}::unknown status '$st'"
+                # джоба будет зелёной, но с warning в логах
+                exit 0
+                fi
+
