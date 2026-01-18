@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-func TestHello_ReturnsExactGreeting(t *testing.T) {
+func Test_greet(t *testing.T) {
 	t.Parallel()
 
-	got := hello()
+	got := greet()
 	want := "Hello, World!"
 	if got != want {
 		t.Fatalf("hello() = %q; want %q", got, want)

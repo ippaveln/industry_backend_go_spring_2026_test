@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+
+
 # Editor/IDE
 # .idea/
 # .vscode/
+
+go-test.jsonl
+packages.txt
+package-results.json

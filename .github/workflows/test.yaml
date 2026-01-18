@@ -19,4 +19,11 @@ jobs:
             - run: go version
 
             - name: Run tests
-              run: go test ./... -v
+              continue-on-error: true
+              run: go test -json ./... > go-test.jsonl
+
+            - name: List all packages
+              run: go list ./... > packages.txt
+
+            - name: Generate test report
+              run: go run ./cmd/testreport -pkgs packages.txt -in go-test.jsonl -out package-results.json
