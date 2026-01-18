@@ -28,9 +28,9 @@ func (l *LRUCache[K, V]) Get(key K) (value V, ok bool) {
 }
 
 func (l *LRUCache[K, V]) Set(key K, value V) {
-	if l == nil {
-		return
-	}
+	// if l == nil {
+	// 	return
+	// }
 	if len(l.cache) < l.capacity {
 		l.cache[key] = value
 		l.lru[key] += 1
