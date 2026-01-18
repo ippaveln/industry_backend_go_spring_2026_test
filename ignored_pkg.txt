@@ -1,0 +1,2 @@
+industry_backend_go/cmd/testreport
+industry_backend_go/cmd/generate_badges

@@ -42,7 +42,7 @@ func loadPackages(path string) ([]string, error) {
 }
 
 func ignoredPackage() map[string]struct{} {
-	ignoredPkgsFile, err := os.ReadFile("./cmd/testreport/ignored_pkg.txt")
+	ignoredPkgsFile, err := os.ReadFile("./ignored_pkg.txt")
 	if err != nil {
 		return nil
 	}

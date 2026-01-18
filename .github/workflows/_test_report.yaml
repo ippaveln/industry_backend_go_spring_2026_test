@@ -1,12 +1,13 @@
-name: test
+name: test-report
 
 on:
-    push:
-        branches: ["**"]
-    pull_request:
+    workflow_call:
+
+permissions:
+    pages: write
 
 jobs:
-    go-test:
+    test-report:
         runs-on: ubuntu-latest
         steps:
             - name: Check out code
@@ -28,11 +29,6 @@ jobs:
             - name: Generate test report
               run: go run ./cmd/testreport -pkgs packages.txt -in go-test.jsonl -out package-results.json
 
-            - name: Show report in logs
-              run:  |
-                echo "==== package-results.json ===="
-                cat package-results.json
-
             - name: Pretty print report
               run: |
                 jq . package-results.json
@@ -44,3 +40,29 @@ jobs:
                 name: test-report
                 path: package-results.json
                 retention-days: 7
+
+            - name: Generate badges
+              if: always()
+              run: |
+                rm -rf public
+                mkdir -p public/badges/tasks
+                go run ./cmd/generate_badges -in package-results.json -out public/badges/tasks
+                ls -la public/badges/tasks
+
+            - name: Upload badges artifact
+              if: always()
+              uses: actions/upload-artifact@v6
+              with:
+                name: badges
+                path: public/badges
+                retention-days: 7
+
+            - name: Public to gh-pages
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                publish_dir: ./public
+                destination_dir: .
+                user_name: github-actions[bot]
+                

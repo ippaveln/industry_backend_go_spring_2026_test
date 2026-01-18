@@ -1,0 +1,8 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+    test-report:
+        uses: ./.github/workflows/_test-report.yaml
+        secrets: 
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
