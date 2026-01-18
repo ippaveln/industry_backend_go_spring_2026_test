@@ -2,8 +2,14 @@ package main
 
 import "fmt"
 
+type LRU[K comparable, V any] interface {
+	Get(key K) (value V, ok bool)
+	Set(key K, value V)
+}
+
 func main() {
-	cache := NewCache[string, string](2)
+	var cache LRU[string, string]
+	cache = NewLRUCache[string, string](2)
 	cache.Set("a", "1")
 
 	if val, ok := cache.Get("a"); ok {
