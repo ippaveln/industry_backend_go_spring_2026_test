@@ -36,3 +36,5 @@ go.work.sum
 go-test.jsonl
 packages.txt
 package-results.json
+
+public/
