@@ -1,3 +1,15 @@
 # Базовый минимум по курсу Промышленная backend разработка на Go
 
-![task 00](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fippalven%2Findustry_backend_go_spring_2026_test%2Fgh-pages%2Fbadges%2Ftasks%2Ftask_00.json)
+![task 00](badges/tasks/task_00.svg)
+![task 01](badges/tasks/task_01.svg)
+![task 02](badges/tasks/task_02.svg)
+![task 03](badges/tasks/task_03.svg)
+![task 04](badges/tasks/task_04.svg)
+![task 05](badges/tasks/task_05.svg)
+![task 06](badges/tasks/task_06.svg)
+![task 07](badges/tasks/task_07.svg)
+![task 08](badges/tasks/task_08.svg)
+![task 09](badges/tasks/task_09.svg)
+![task 10](badges/tasks/task_10.svg)
+![task 11](badges/tasks/task_11.svg)
+![task 12](badges/tasks/task_12.svg)

@@ -56,11 +56,11 @@ jobs:
                 path: public/badges
                 retention-days: 7
 
-            - name: Public to gh-pages
-              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-              uses: peaceiris/actions-gh-pages@v4
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                publish_dir: ./public
-                destination_dir: .
-                user_name: github-actions[bot]
+            - name: Commit and push badges
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                git add badges/tasks/*.svg
+                git commit -m "Update task badges" || exit 0
+                git push
+
