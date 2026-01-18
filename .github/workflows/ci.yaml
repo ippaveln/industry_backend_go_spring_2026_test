@@ -73,7 +73,7 @@ jobs:
             - name: Download results artifact
               uses: actions/download-artifact@v6
               with:
-                name: package-results
+                name: test-report
                 path: .
 
             - id: mk
