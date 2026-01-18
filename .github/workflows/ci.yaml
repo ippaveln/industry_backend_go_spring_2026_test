@@ -43,10 +43,10 @@ jobs:
             - name: Generate badges
               if: always()
               run: |
-                rm -rf public
-                mkdir -p public/badges/tasks
+                rm -rf badges/tasks
+                mkdir -p badges/tasks
                 go run ./cmd/generate_badges -in package-results.json -out public/badges/tasks
-                ls -la public/badges/tasks
+                ls -la badges/tasks
 
             - name: Upload badges artifact
               if: always()
