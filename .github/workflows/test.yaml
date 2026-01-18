@@ -27,3 +27,20 @@ jobs:
 
             - name: Generate test report
               run: go run ./cmd/testreport -pkgs packages.txt -in go-test.jsonl -out package-results.json
+
+            - name: Show report in logs
+              run:  |
+                echo "==== package-results.json ===="
+                cat package-results.json
+
+            - name: Pretty print report
+              run: |
+                jq . package-results.json
+
+            - name: Upload test report artifact
+              if: always()
+              uses: actions/upload-artifact@v6
+              with:
+                name: test-report
+                path: package-results.json
+                retention-days: 7
