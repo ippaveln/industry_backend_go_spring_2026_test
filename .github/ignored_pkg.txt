@@ -1,2 +1,3 @@
 industry_backend_go/cmd/testreport
 industry_backend_go/cmd/generate_badges
+industry_backend_go/cmd/change_check
