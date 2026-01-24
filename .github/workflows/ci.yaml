@@ -48,6 +48,11 @@ jobs:
                 # git diff --no-index сравнивает две папки (не требует общей истории)
                 # Важно: он возвращает exit code 1 когда есть отличия, поэтому "|| true"
                 git -C  current diff --no-index --name-status ../baseline . > changed_files.raw || true
+
+                # чтобы не было "странных символов" (TAB) — делаем читаемый файл
+                sed 's/\t/ /g' changed_files.raw > changed_files.txt
+
+                # список файлов, включая оба имени для rename/copy
                 awk '
                   $1 ~ /^[RC]/ { print $2; print $3; next }
                   NF >= 2 { print $2 }
