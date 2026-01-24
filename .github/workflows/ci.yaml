@@ -94,7 +94,7 @@ jobs:
 
             - name: Run tests
               continue-on-error: true
-              run: go test -json ./... > go-test.jsonl
+              run: go test -race -failfast -count=3 -json ./... > go-test.jsonl
 
             - name: List all packages
               run: go list ./... > packages.txt
