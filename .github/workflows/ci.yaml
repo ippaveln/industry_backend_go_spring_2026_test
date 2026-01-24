@@ -2,7 +2,7 @@ name: ci
 on: 
   push:
     paths-ignore:
-      - 'badges/'
+      - 'badges/**'
   pull_request:
 
 permissions:
@@ -131,6 +131,7 @@ jobs:
                 retention-days: 7
 
             - name: Commit and push badges
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
               run: |
                 git config --global user.name "github-actions[bot]"
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -270,7 +271,7 @@ jobs:
                 if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
                   echo "analytics failed response (first 500 chars):"
                   head -c 500 _analytics_resp.txt || true
-                  exit 1
+                  exit 0
                 fi
 
     prepare_matrix:
@@ -336,7 +337,7 @@ jobs:
           run: |
             echo "guard exit code: ${{ needs.test-report.outputs.checkCode }}"
             if [ "${{ needs.test-report.outputs.checkCode }}" != "0" ]; then
-              echo "Unexpected changes detected. See artifacts/report in previous job."
+              echo "Unexpected changes detected. See artifacts `check`."
               exit 1
             fi
             echo "All changes are allowed."
