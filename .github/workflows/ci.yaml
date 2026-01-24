@@ -80,7 +80,7 @@ jobs:
             - name: Run check
               id: goCheck
               run: |
-                set -euo pipefail
+                set +e # don't fail
                 go run ./cmd/change_check -config ./.etc/config.json -diff changed_files.raw -out change-policy-result.json
                 check_code=$?
                 echo "checkCode=$check_code" >> "$GITHUB_OUTPUT"
