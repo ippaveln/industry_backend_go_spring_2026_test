@@ -17,6 +17,7 @@
             "ref": "master"
         },
         "allow_list": [
+            ".git/*",
             "tasks/task_01/solution.go",
             "tasks/task_02/solution.go",
             "tasks/task_03/solution.go",

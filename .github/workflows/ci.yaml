@@ -74,11 +74,23 @@ jobs:
                 path: |
                   changed_files_only.txt 
                   changed_files.txt
+
+            - name: Run check
+              run: |
+                set -euo pipefail
+                go run ./cmd/change_check -config ./.etc/config.json -diff changed_files.raw -out change-policy-result.json
+
+            - name: Upload result artifact for check
+              uses: actions/upload-artifact@v6
+              with:
+                name: check
+                path: change-policy-result.json
             
             - name: del dirs
               run: |
                 rm -rf current
                 rm -rf baseline
+
 
             - name: Run tests
               continue-on-error: true
