@@ -5,6 +5,11 @@ import (
 	"sync"
 )
 
+type LRU[K comparable, V any] interface {
+	Get(key K) (value V, ok bool)
+	Set(key K, value V)
+}
+
 type entry[K comparable, V any] struct {
 	key   K
 	value V

@@ -2,11 +2,6 @@ package main
 
 import "fmt"
 
-type LRU[K comparable, V any] interface {
-	Get(key K) (value V, ok bool)
-	Set(key K, value V)
-}
-
 func main() {
 	var cache LRU[string, string]
 	cache = NewLRUCache[string, string](2)

@@ -11,10 +11,14 @@ import (
 )
 
 func TestParallelMap_WorkersNonPositive_ReturnsErrorAndDoesNotCallFn(t *testing.T) {
+	t.Parallel()
+
 	cases := []int{0, -1, -10}
 
 	for _, workers := range cases {
 		t.Run("workers="+strconv.Itoa(workers), func(t *testing.T) {
+			t.Parallel()
+
 			ctx := context.Background()
 			in := []int{1, 2, 3}
 
@@ -36,6 +40,8 @@ func TestParallelMap_WorkersNonPositive_ReturnsErrorAndDoesNotCallFn(t *testing.
 }
 
 func TestParallelMap_EmptyInput_ReturnsEmptyAndNilError(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	var called int32
@@ -69,6 +75,8 @@ func TestParallelMap_EmptyInput_ReturnsEmptyAndNilError(t *testing.T) {
 }
 
 func TestParallelMap_OrderPreserved(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -104,6 +112,8 @@ func TestParallelMap_OrderPreserved(t *testing.T) {
 }
 
 func TestParallelMap_MaxParallelismRespected_HardBarrier(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -157,6 +167,8 @@ func TestParallelMap_MaxParallelismRespected_HardBarrier(t *testing.T) {
 }
 
 func TestParallelMap_CancelOnError_StopsStartingNewWork(t *testing.T) {
+	t.Parallel()
+
 	// Важное: если cancel на ошибке НЕ сделан, задачи зависнут на <-ctx.Done(),
 	// и ParallelMap не завершится "быстро". Чтобы тест не зависал навечно,
 	// мы запускаем ParallelMap в отдельной горутине и ставим таймаут ожидания.
@@ -217,6 +229,8 @@ func TestParallelMap_CancelOnError_StopsStartingNewWork(t *testing.T) {
 }
 
 func TestParallelMap_ContextCanceledBeforeStart(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -241,6 +255,8 @@ func TestParallelMap_ContextCanceledBeforeStart(t *testing.T) {
 }
 
 func TestParallelMap_ContextCanceledDuringWork(t *testing.T) {
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	in := make([]int, 200)
@@ -265,6 +281,8 @@ func TestParallelMap_ContextCanceledDuringWork(t *testing.T) {
 }
 
 func TestParallelMap_NoGoroutineLeak_Indirect(t *testing.T) {
+	t.Parallel()
+
 	before := runtime.NumGoroutine()
 
 	const iters = 60

@@ -287,6 +287,8 @@ func (f *failOnce) Err() error {
 }
 
 func Test_LRU_concurrent_get_set_no_eviction_expected(t *testing.T) {
+	t.Parallel()
+
 	const keysCount = 64
 	const writers = 8
 	const readers = 8
@@ -356,6 +358,8 @@ func Test_LRU_concurrent_get_set_no_eviction_expected(t *testing.T) {
 }
 
 func Test_LRU_concurrent_eviction_stress_no_panic(t *testing.T) {
+	t.Parallel()
+
 	const cap = 8
 	const keySpace = 128
 	const goroutines = 16
@@ -401,6 +405,8 @@ func Test_LRU_concurrent_eviction_stress_no_panic(t *testing.T) {
 }
 
 func Test_LRU_concurrent_value_consistency_same_key(t *testing.T) {
+	t.Parallel()
+
 	type pair struct {
 		A int
 		B int

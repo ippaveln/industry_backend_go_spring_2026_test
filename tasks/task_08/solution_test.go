@@ -18,6 +18,8 @@ func (c *fakeClock) Now() time.Time { return c.now }
 func (c *fakeClock) Advance(d time.Duration) { c.now = c.now.Add(d) }
 
 func TestLimiter_burst_initial(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	burst := 3
 	l := NewLimiter(clk, 1.0, burst)
@@ -33,6 +35,8 @@ func TestLimiter_burst_initial(t *testing.T) {
 }
 
 func TestLimiter_spend_tokens_then_refill_over_time(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	l := NewLimiter(clk, 1.0, 2) // 1 token/sec, burst 2
 
@@ -61,6 +65,8 @@ func TestLimiter_spend_tokens_then_refill_over_time(t *testing.T) {
 }
 
 func TestLimiter_refill_is_capped_by_burst(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	burst := 5
 	l := NewLimiter(clk, 1000.0, burst) // высокая скорость, но ёмкость ограничена burst
@@ -89,6 +95,8 @@ func TestLimiter_refill_is_capped_by_burst(t *testing.T) {
 }
 
 func TestLimiter_rate_zero_no_refill(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	l := NewLimiter(clk, 0.0, 2)
 
@@ -106,6 +114,8 @@ func TestLimiter_rate_zero_no_refill(t *testing.T) {
 }
 
 func TestLimiter_burst_zero_always_reject(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	l := NewLimiter(clk, 10.0, 0)
 
@@ -119,6 +129,8 @@ func TestLimiter_burst_zero_always_reject(t *testing.T) {
 }
 
 func TestLimiter_fractional_rate_accumulates_fractionally(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 	l := NewLimiter(clk, 2.5, 10) // 2.5 token/sec
 
@@ -163,6 +175,8 @@ func waitTimeout(wg *sync.WaitGroup, d time.Duration) bool {
 // 1) Потокобезопасность: много goroutine одновременно вызывают Allow() в один момент времени.
 // Ожидание: true должно быть ровно burst раз (корзина стартует полной), остальное false.
 func TestLimiter_concurrent_allow_respects_initial_burst(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 
 	burst := 100
@@ -200,6 +214,8 @@ func TestLimiter_concurrent_allow_respects_initial_burst(t *testing.T) {
 // 2) Потокобезопасность + корректность: после refill разрешений не больше, чем накопилось токенов.
 // Сценарий: сливаем весь burst, двигаем время, затем одновременно дергаем Allow().
 func TestLimiter_concurrent_allow_after_refill_is_capped(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 
 	burst := 50
@@ -249,6 +265,8 @@ func TestLimiter_concurrent_allow_after_refill_is_capped(t *testing.T) {
 // 3) Стресс на конкурентные вызовы: много попыток, время не движется.
 // Инвариант: разрешений не больше burst (потому что refill не происходит).
 func TestLimiter_concurrent_stress_no_refill_never_exceeds_burst(t *testing.T) {
+	t.Parallel()
+
 	clk := newFakeClock(time.Unix(0, 0))
 
 	burst := 30

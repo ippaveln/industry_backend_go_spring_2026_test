@@ -40,6 +40,7 @@ func Test_Calc(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			got := Calc(tt.arg)
 			if got != tt.want {
 				t.Fatalf("Calc(%v) = %+v; want %+v", tt.arg, got, tt.want)
