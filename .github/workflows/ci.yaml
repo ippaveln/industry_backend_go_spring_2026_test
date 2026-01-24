@@ -8,6 +8,8 @@ permissions:
 jobs:
     test-report:
         runs-on: ubuntu-latest
+        outputs:
+            checkCode: ${{ steps.goCheck.outputs.checkCode }}
         steps:
             - name: Check out code
               uses: actions/checkout@v6
@@ -76,9 +78,13 @@ jobs:
                   changed_files.txt
 
             - name: Run check
+              id: goCheck
               run: |
                 set -euo pipefail
                 go run ./cmd/change_check -config ./.etc/config.json -diff changed_files.raw -out change-policy-result.json
+                check_code=$?
+                echo "checkCode=$check_code" >> "$GITHUB_OUTPUT"
+                exit 0
 
             - name: Upload result artifact for check
               uses: actions/upload-artifact@v6
@@ -193,3 +199,15 @@ jobs:
                 exit 0
                 fi
     
+    check-status:
+      needs: test-report
+      runs-on: ubuntu-latest
+      steps:
+        - name: Show status and fail only here if needed
+          run: |
+            echo "guard exit code: ${{ needs.test-report.outputs.checkCode }}"
+            if [ "${{ needs.test-report.outputs.checkCode }}" != "0" ]; then
+              echo "Unexpected changes detected. See artifacts/report in previous job."
+              exit 1
+            fi
+            echo "All changes are allowed."
