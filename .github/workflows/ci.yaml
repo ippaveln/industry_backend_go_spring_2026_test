@@ -59,17 +59,6 @@ jobs:
                   $1 ~ /^[RC]/ { print $2; print $3; next }
                   NF >= 2 { print $2 }
                 ' changed_files.raw | sort -u > changed_files_only.txt || true
-
-                {
-                  echo "Baseline: ${BASELINE_REPO:-unknown} @ ${BASELINE_REF:-unknown}"
-                  echo ""
-                  echo "Changed files (name-status):"
-                  cat changed_files.txt
-                  echo ""
-                  echo "Changed files only:"
-                  cat changed_files_only.txt
-                } >> "$GITHUB_STEP_SUMMARY"
-
             - uses: actions/upload-artifact@v6
               with:
                 name: diff
