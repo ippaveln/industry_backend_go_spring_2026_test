@@ -47,7 +47,7 @@ jobs:
                 set -euo pipefail
                 # git diff --no-index сравнивает две папки (не требует общей истории)
                 # Важно: он возвращает exit code 1 когда есть отличия, поэтому "|| true"
-                git -C  current diff --no-index --name-status ../baseline . > changed_files.txt || true
+                git -C  current diff --no-index --name-status ../baseline . > changed_files.raw || true
                 awk '
                   $1 ~ /^[RC]/ { print $2; print $3; next }
                   NF >= 2 { print $2 }
