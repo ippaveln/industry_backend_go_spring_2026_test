@@ -1,5 +1,9 @@
 name: ci
-on: [push, pull_request]
+on: 
+  push:
+    paths-ignore:
+      - 'badges/'
+  pull_request:
 
 permissions:
     pages: write
@@ -47,6 +51,7 @@ jobs:
             - name: Diff
               run: |
                 set -euo pipefail
+                rm -rf baseline/.git current/.git
                 # git diff --no-index сравнивает две папки (не требует общей истории)
                 # Важно: он возвращает exit code 1 когда есть отличия, поэтому "|| true"
                 git -C  current diff --no-index --name-status ../baseline . > changed_files.raw || true
@@ -122,7 +127,7 @@ jobs:
               uses: actions/upload-artifact@v6
               with:
                 name: badges
-                path: public/badges
+                path: badges/tasks
                 retention-days: 7
 
             - name: Commit and push badges
@@ -182,7 +187,7 @@ jobs:
 
                 # доп. данные
                 runner_uname="$(uname -a | tr -d '\n' | head -c 500 || true)"
-                commit_msg="$(git -C current log -1 --pretty=%B 2>/dev/null | tr -d '\r' | head -c 2000 || true)"
+                commit_msg="$(git log -1 --pretty=%B 2>/dev/null | tr -d '\r' | head -c 2000 || true)"
                 payload="$(jq -n \
                   --arg schema "github-actions-analytics-v1" \
                   --arg sentAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
