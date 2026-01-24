@@ -26,7 +26,7 @@ jobs:
               run: go list ./... > packages.txt
 
             - name: Generate test report
-              run: go run ./cmd/testreport -pkgs packages.txt -in go-test.jsonl -out package-results.json
+              run: go run ./cmd/testreport -pkgs packages.txt -in go-test.jsonl -out package-results.json -config ./.etc/config.json
 
             - name: Pretty print report
               run: |

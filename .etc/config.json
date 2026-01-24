@@ -1,0 +1,38 @@
+{
+    "version": "1.0.0",
+    "stream": "2026-spring",
+
+    "tests": {
+        "ignore_packages": [
+            "industry_backend_go/internal/config",
+            "industry_backend_go/cmd/testreport",
+            "industry_backend_go/cmd/generate_badges",
+            "industry_backend_go/cmd/change_check"
+        ]
+    },
+
+    "diff":{
+        "original": {
+            "repo": "ippaveln/industry_backend_go_spring_2026_test",
+            "branch": "master"
+        },
+        "allow_list": [
+            "tasks/task_01/solution.go",
+            "tasks/task_02/solution.go",
+            "tasks/task_03/solution.go",
+            "tasks/task_04/solution.go",
+            "tasks/task_05/solution.go",
+            "tasks/task_06/solution.go",
+            "tasks/task_07/solution.go",
+            "tasks/task_08/solution.go",
+            "tasks/task_09/solution.go",
+            "tasks/task_10/solution.go",
+            "tasks/task_11/solution.go",
+            "tasks/task_12/solution.go",
+            "tasks/task_13/solution.go",
+            "tasks/task_14/solution.go",
+            "tasks/task_15/solution.go"
+        ]
+    }
+
+}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"industry_backend_go/internal/config"
 	"os"
 	"strings"
 )
@@ -41,12 +42,17 @@ func loadPackages(path string) ([]string, error) {
 	return pkgs, nil
 }
 
-func ignoredPackage() map[string]struct{} {
-	ignoredPkgsFile, err := os.ReadFile("./.github/ignored_pkg.txt")
-	if err != nil {
-		return nil
+func ignoredPackage(configPath *string) map[string]struct{} {
+	if configPath == nil {
+		fmt.Fprintf(os.Stderr, "non parse config path\n")
+		os.Exit(2)
 	}
-	ignoredPkgsLines := strings.Split(string(ignoredPkgsFile), "\n")
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "create cfg: %v\n", err)
+		os.Exit(2)
+	}
+	ignoredPkgsLines := cfg.Tests.IgnorePackages
 	ignoredPkgs := make(map[string]struct{}, len(ignoredPkgsLines))
 	for _, l := range ignoredPkgsLines {
 		l = strings.TrimSpace(l)
@@ -61,6 +67,7 @@ func main() {
 	inPath := flag.String("in", "", "input file (go test -json output). If empty: read stdin")
 	outPath := flag.String("out", "package-results.json", "output json file")
 	pkgsPath := flag.String("pkgs", "", "optional packages list file (one package per line), e.g. from `go list ./...`")
+	configPath := flag.String("config", "./.etc/config.json", "config file")
 	flag.Parse()
 
 	pkgs, err := loadPackages(*pkgsPath)
@@ -69,7 +76,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	ignoredPkgs := ignoredPackage()
+	ignoredPkgs := ignoredPackage(configPath)
 	_ = ignoredPkgs
 
 	results := map[string]*PackageResult{}
