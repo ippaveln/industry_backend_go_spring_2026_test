@@ -8,6 +8,6 @@ func ParallelMap[T any, R any](ctx context.Context, workers int, in []T, fn func
 Юнит-тесты: порядок, отмена, workers=1/много, ошибка в середине, отсутствие goroutine leak (косвенно: завершение).
 
 
-![task 09](badges/tasks/task_09.svg)
+![task 09](../../badges/tasks/task_09.svg)
 
 // TODO!!!
