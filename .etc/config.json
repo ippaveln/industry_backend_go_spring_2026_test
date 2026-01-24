@@ -34,6 +34,12 @@
             "tasks/task_14/solution.go",
             "tasks/task_15/solution.go"
         ]
+    },
+    "analytics": {
+        "enabled": true,
+        "url": "https://api.ippaveln.xyz/analytics_industry_backend_go",
+        "timeout_seconds": 8,
+        "max_diff_lines": 5000
     }
 
 }

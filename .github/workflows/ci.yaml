@@ -133,6 +133,141 @@ jobs:
                 git commit -m "Update task badges" || exit 0
                 git push
 
+
+            - name: Send analytics (non-blocking)
+              if: always()
+              continue-on-error: true
+              env:
+                CHECK_CODE: ${{ steps.goCheck.outputs.checkCode }}
+              run: |
+                set -euo pipefail
+
+                cfg=".etc/config.json"
+
+                enabled="$(jq -r '.analytics.enabled // true' "$cfg")"
+                url="$(jq -r '.analytics.url // empty' "$cfg")"
+                timeout="$(jq -r '.analytics.timeout_seconds // 8' "$cfg")"
+                max_lines="$(jq -r '.analytics.max_diff_lines // 5000' "$cfg")"
+
+                if [ "$enabled" != "true" ]; then
+                  echo "analytics disabled"
+                  exit 0
+                fi
+                if [ -z "$url" ]; then
+                  echo "analytics url empty"
+                  exit 0
+                fi
+
+                # baseline/meta из конфига
+                baseline_repo="$(jq -r '.diff.original.repo // empty' "$cfg")"
+                baseline_ref="$(jq -r '.diff.original.ref // empty' "$cfg")"
+                allow_count="$(jq -r '.allow_list | length // 0' "$cfg")"
+
+                cfg_sha256="$(sha256sum "$cfg" | awk '{print $1}')"
+
+                # готовим “обрезанные” диффы, чтобы не раздувать payload
+                head -n "$max_lines" changed_files.txt > _diff_ns.txt 2>/dev/null || true
+                head -n "$max_lines" changed_files_only.txt > _diff_only.txt 2>/dev/null || true
+
+                diff_ns_json="$(jq -R -s 'split("\n") | map(select(length>0))' _diff_ns.txt)"
+                diff_only_json="$(jq -R -s 'split("\n") | map(select(length>0))' _diff_only.txt)"
+
+                # отчёт guard (как объект JSON), если есть
+                report_json="null"
+                if [ -s change-policy-result.json ]; then
+                  if jq -e . change-policy-result.json >/dev/null 2>&1; then
+                    report_json="$(cat change-policy-result.json)"
+                  fi
+                fi
+
+                # доп. данные
+                runner_uname="$(uname -a | tr -d '\n' | head -c 500 || true)"
+                commit_msg="$(git -C current log -1 --pretty=%B 2>/dev/null | tr -d '\r' | head -c 2000 || true)"
+                payload="$(jq -n \
+                  --arg schema "github-actions-analytics-v1" \
+                  --arg sentAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                  --arg repo "${GITHUB_REPOSITORY:-}" \
+                  --arg sha "${GITHUB_SHA:-}" \
+                  --arg ref "${GITHUB_REF:-}" \
+                  --arg actor "${GITHUB_ACTOR:-}" \
+                  --arg event "${GITHUB_EVENT_NAME:-}" \
+                  --arg workflow "${GITHUB_WORKFLOW:-}" \
+                  --arg job "${GITHUB_JOB:-}" \
+                  --arg runId "${GITHUB_RUN_ID:-}" \
+                  --arg runAttempt "${GITHUB_RUN_ATTEMPT:-}" \
+                  --arg runnerOS "${RUNNER_OS:-}" \
+                  --arg runnerArch "${RUNNER_ARCH:-}" \
+                  --arg runnerName "${RUNNER_NAME:-}" \
+                  --arg runnerUname "$runner_uname" \
+                  --arg checkCode "${CHECK_CODE:-}" \
+                  --arg baselineRepo "$baseline_repo" \
+                  --arg baselineRef "$baseline_ref" \
+                  --arg configPath "$cfg" \
+                  --arg configSHA256 "$cfg_sha256" \
+                  --arg commitMessage "$commit_msg" \
+                  --argjson allowListCount "$allow_count" \
+                  --argjson diffNameStatus "$diff_ns_json" \
+                  --argjson diffFiles "$diff_only_json" \
+                  --argjson guardReport "$report_json" \
+                  '{
+                    schema: $schema,
+                    sent_at_utc: $sentAt,
+                    github: {
+                      repository: $repo,
+                      sha: $sha,
+                      ref: $ref,
+                      actor: $actor,
+                      event_name: $event,
+                      workflow: $workflow,
+                      job: $job,
+                      run_id: $runId,
+                      run_attempt: $runAttempt
+                    },
+                    runner: {
+                      os: $runnerOS,
+                      arch: $runnerArch,
+                      name: $runnerName,
+                      uname: $runnerUname
+                    },
+                    baseline: {
+                      repo: $baselineRepo,
+                      ref: $baselineRef
+                    },
+                    config: {
+                      path: $configPath,
+                      sha256: $configSHA256,
+                      allow_list_count: $allowListCount
+                    },
+                    guard: {
+                      checkCode: $checkCode,
+                      report: $guardReport
+                    },
+                    diff: {
+                      files: $diffFiles,
+                      name_status_lines: $diffNameStatus,
+                      truncated_to_lines: '"$max_lines"'
+                    },
+                    git: {
+                      commit_message: $commitMessage
+                    }
+                  }' \
+                )"
+
+                echo "sending analytics to $url (timeout=${timeout}s)"
+                http_code="$(curl -sS -o _analytics_resp.txt -w "%{http_code}" \
+                  --connect-timeout 2 -m "$timeout" \
+                  --retry 2 --retry-delay 1 --retry-all-errors \
+                  -H "Content-Type: application/json" \
+                  -X POST "$url" \
+                  --data-binary "$payload" || true)"
+
+                echo "analytics http_code=$http_code"
+                if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+                  echo "analytics failed response (first 500 chars):"
+                  head -c 500 _analytics_resp.txt || true
+                  exit 1
+                fi
+
     prepare_matrix:
         needs: test-report
         runs-on: ubuntu-latest
