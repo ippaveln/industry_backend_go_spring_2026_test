@@ -48,13 +48,19 @@ jobs:
                 # git diff --no-index сравнивает две папки (не требует общей истории)
                 # Важно: он возвращает exit code 1 когда есть отличия, поэтому "|| true"
                 git -C  current diff --no-index --name-status ../baseline . > changed_files.txt || true
-                awk '{print $2}' changed_files.txt | sort -u > changed_files_only.txt || true
+                awk '
+                  $1 ~ /^[RC]/ { print $2; print $3; next }
+                  NF >= 2 { print $2 }
+                ' changed_files.raw | sort -u > changed_files_only.txt || true
 
                 {
-                  echo "Baseline: ${{ steps.config.outputs.baseline_repo }} @ ${{ steps.config.outputs.baseline_ref }}"
+                  echo "Baseline: ${BASELINE_REPO:-unknown} @ ${BASELINE_REF:-unknown}"
                   echo ""
-                  echo "Changed files:"
+                  echo "Changed files (name-status):"
                   cat changed_files.txt
+                  echo ""
+                  echo "Changed files only:"
+                  cat changed_files_only.txt
                 } >> "$GITHUB_STEP_SUMMARY"
 
             - uses: actions/upload-artifact@v6
