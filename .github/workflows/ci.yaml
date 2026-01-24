@@ -18,6 +18,57 @@ jobs:
                 go-version-file: 'go.mod'
             - run: go version
 
+            - name: Read baseline from config.json
+              id: config
+              run: |
+                set -euo pipefail
+                baseline_repo="$(jq -r '.diff.original.repo' ./.etc/config.json)"
+                baseline_ref="$(jq -r '.diff.original.ref' ./.etc/config.json)"
+                echo "baseline_repo=$baseline_repo" >> "$GITHUB_OUTPUT"
+                echo "baseline_ref=$baseline_ref" >> "$GITHUB_OUTPUT"
+
+            - name: Checkout baseline
+              uses: actions/checkout@v6
+              with:
+                repository: ${{ steps.config.outputs.baseline_repo }}
+                ref: ${{ steps.config.outputs.baseline_ref }}
+                path: baseline
+                fetch-depth: 1
+
+
+            - name: Checkout diff
+              uses: actions/checkout@v6
+              with:
+                path: current
+                fetch-depth: 1
+
+            - name: Diff
+              run: |
+                set -euo pipefail
+                # git diff --no-index сравнивает две папки (не требует общей истории)
+                # Важно: он возвращает exit code 1 когда есть отличия, поэтому "|| true"
+                git -C  current diff --no-index --name-status ../baseline . > changed_files.txt || true
+                awk '{print $2}' changed_files.txt | sort -u > changed_files_only.txt || true
+
+                {
+                  echo "Baseline: ${{ steps.config.outputs.baseline_repo }} @ ${{ steps.config.outputs.baseline_ref }}"
+                  echo ""
+                  echo "Changed files:"
+                  cat changed_files.txt
+                } >> "$GITHUB_STEP_SUMMARY"
+
+            - uses: actions/upload-artifact@v6
+              with:
+                name: diff
+                path: |
+                  changed_files_only.txt 
+                  changed_files.txt
+            
+            - name: del dirs
+              run: |
+                rm -rf current
+                rm -rf baseline
+
             - name: Run tests
               continue-on-error: true
               run: go test -json ./... > go-test.jsonl

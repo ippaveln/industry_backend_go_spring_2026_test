@@ -14,7 +14,7 @@
     "diff":{
         "original": {
             "repo": "ippaveln/industry_backend_go_spring_2026_test",
-            "branch": "master"
+            "ref": "master"
         },
         "allow_list": [
             "tasks/task_01/solution.go",
