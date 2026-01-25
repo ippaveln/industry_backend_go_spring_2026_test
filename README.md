@@ -13,13 +13,23 @@
 ![task 10](badges/tasks/task_10.svg)
 
 [Задание 00](tasks/task_00/README.md)
+
 [Задание 01](tasks/task_01/README.md)
+
 [Задание 02](tasks/task_02/README.md)
+
 [Задание 03](tasks/task_03/README.md)
+
 [Задание 04](tasks/task_04/README.md)
+
 [Задание 05](tasks/task_05/README.md)
+
 [Задание 06](tasks/task_06/README.md)
+
 [Задание 07](tasks/task_07/README.md)
+
 [Задание 08](tasks/task_08/README.md)
+
 [Задание 09](tasks/task_09/README.md)
+
 [Задание 10](tasks/task_10/README.md)
